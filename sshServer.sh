@@ -1,5 +1,10 @@
 #! /bin/bash
 
+########################################################
+###     Je suis pas sure que ce script marche :(     ###
+### Au moins, faut le lancer sur la machine "vierge" ###
+########################################################
+
 #constants
 RED='\e[31m'
 GREEN='\e[32m'
@@ -16,6 +21,7 @@ fi
 echo -e "Root ${OK}"
 
 #installation
+echo -e "configuration ... "
 sudo apt-get install openssh-server -y >& /dev/null
 echo -e "openssh-server ${OK}"
 #configuration serveur ssh
@@ -23,13 +29,14 @@ cfg="/etc/ssh/sshd_config"
 sudo cp ${cfg} ${cfg}.factory-defaults #backup settings
 cat $cfg | sed -e "s/'PermitRootLogin .*$'/'PermitRootLogin no$'/" > ${cfg}.temp  #No root login
 cat ${cfg}.temp | grep 'PasswordAuthentication yes' >& /dev/null #If login by password allowed
-if (( $? -ne 0 )); then
+if [ $? -ne 0 ]; then
   cat $cfg.temp | sed -e 's/PasswordAuthentication .*$/PasswordAuthentication no$/g' > $cfg.temp #if yes, set no
 fi
 cat $cfg.temp | sed -e 's/PermitEmptyPasswords no .*$/PermitEmptyPasswords no$/g' > $cfg.temp #no empty PermitEmptyPasswords
 cat $cfg.temp | sed -e 's/PubkeyAuthentication no .*$/PubkeyAuthentication yes$/g' > $cfg.temp #yes to login by key
 mv ${cfg}.temp ${cfg} #Copy the new file over the original file
 sudo /etc/init.d/ssh restart #restart with new config
+echo -e "configuration ... $OK. Restarting. "
 
 #run in new PID namecpace
 echo "Starting server"
