@@ -73,7 +73,7 @@ echo -e "Setting capabilities $OK"
 echo "Killing old daemon"
 sudo kill `pgrep sshd`
 echo "Starting new daemon as non-root user"
-runuser -u daemon service ssh start
+sudo ip netns exec $nsName sudo -u daemon service ssh start
 pid=`pgrep sshd | cut -d' ' -f1`
 echo "It's PID = $pid"
 
